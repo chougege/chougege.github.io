@@ -1,0 +1,9 @@
+<script>
+    !function(path, list) {
+        if (path.pop() == list) {
+            path.pop();
+        }
+        path.push(list);
+        location.replace(path.join("/"));
+    }(location.pathname.split("/"), "README.md")
+</script>
