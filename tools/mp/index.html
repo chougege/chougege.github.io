@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>公众号文章编辑器</title>
+    <style>
+        :focus-visible {
+            outline: 0;
+        }
+
+        body {
+            background: #3d3d3d;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        button {
+            margin: 0 2px 2px 2px;
+            background: #f0f0f0;
+            border: 1px solid #bdbdbd;
+        }
+
+        button:active {
+            background: #c4c4c4;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            box-sizing: border-box;
+            width: 576px;
+            min-height: 576px;
+            padding: 10px;
+            background: white;
+        }
+
+        .options {
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .layout>section,
+        .layout p,
+        .layout img {
+            border: 1px solid #dcdcdc;
+        }
+
+        #editor {
+            color: #3f3f3f;
+            font-size: 15px;
+            height: 100%;
+            line-height: 1.75em;
+        }
+
+        #editor>p {
+            text-indent: 2em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+            <div id="editor" contenteditable="true" spellcheck="false"></div>
+        </div>
+        <div class="sidebar">
+            <div class="options">
+                <button onclick="format()">内容整理</button>
+                <button onclick="layout()">显示布局</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const task = {
+            // 需要处理的标签
+            tagName: ["SECTION", "IMG"],
+            // 需要处理后保留的属性
+            tagAttributes: ["src", "style"]
+        };
+
+        function $(selector) {
+            return document.querySelectorAll(selector);
+        }
+
+        // 判断是否存在冗余属性
+        function existUnexpected(attributes) {
+            let unexpected = false;
+            for (let attribute of attributes) {
+                if (task.tagAttributes.indexOf(attribute.name) == -1) {
+                    unexpected = true;
+                    break;
+                }
+            }
+            return unexpected;
+        }
+
+        function format() {
+            // 过滤多余的属性
+            for (let item of $("#editor *")) {
+                if (task.tagName.indexOf(item.tagName) >= 0) {
+                    while (existUnexpected(item.attributes)) {
+                        for (let attribute of item.attributes) {
+                            if (task.tagAttributes.indexOf(attribute.name) == -1) {
+                                item.attributes.removeNamedItem(attribute.name)
+                            }
+                        }
+                    }
+                }
+            }
+            // 加入必要的间距
+            for (let item of $("#editor>*")) {
+                if (item.tagName != "P") {
+                    if (item.nextElementSibling) {
+                        if (item.nextElementSibling.tagName != "P") {
+                            // 中间
+                            item.insertAdjacentHTML("afterend", "<p>正文内容</p>");
+                        }
+                    } else {
+                        // 最后一行
+                        item.insertAdjacentHTML("afterend", "<p>正文内容</p>");
+                    }
+                }
+            }
+        }
+
+        function layout() {
+            // 切换布局开关
+            $("#editor")[0].classList.toggle("layout");
+        }
+    </script>
+</body>
+
+</html>
